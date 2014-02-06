@@ -1,7 +1,8 @@
 require 'acts-as-taggable-on'
 
 class Spree::BlogEntry < ActiveRecord::Base
-  attr_accessible :title, :body, :tag_list, :visible, :published_at, :summary, :permalink, :author_id, :category_list, :blog_entry_image, :blog_entry_image_attributes
+
+  attr_accessible :title, :body, :tag_list, :visible, :published_at, :summary, :permalink, :author_id, :category_list, :blog_entry_image, :blog_entry_image_attributes, :blog_category_ids
   acts_as_taggable_on :tags, :categories
   before_save :create_permalink
   before_save :set_published_at
@@ -19,7 +20,11 @@ class Spree::BlogEntry < ActiveRecord::Base
   end
 
   has_one :blog_entry_image, :as => :viewable, :dependent => :destroy, :class_name => 'Spree::BlogEntryImage'
+  has_many :category_entries, dependent: :delete_all, :class_name => "Spree::CategoryEntry"
+  has_many :blog_categories, :through => :category_entries
+
   accepts_nested_attributes_for :blog_entry_image, :reject_if => :all_blank
+  accepts_nested_attributes_for :category_entries, :allow_destroy => true
 
   def entry_summary(chars=200)
     if summary.blank?
