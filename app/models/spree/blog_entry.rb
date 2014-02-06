@@ -38,37 +38,51 @@ class Spree::BlogEntry < ActiveRecord::Base
     end
   end
 
-  def self.by_date(date, period = nil)
-    if date.is_a?(Hash)
-      keys = [:day, :month, :year].select { |key| date.include?(key) }
-      period = keys.first.to_s
-      date = DateTime.new(*keys.reverse.map { |key| date[key].to_i })
+  class << self
+    def recent(count = 5)
+      order("published_at DESC").limit(count)
     end
 
-    time = date.to_time.in_time_zone
-    where(:published_at => (time.send("beginning_of_#{period}")..time.send("end_of_#{period}")))
-  end
+    def popular(count = 5)
+      order("view_count ASC").limit(count)
+    end
 
-  def self.by_tag(tag_name)
-    tagged_with(tag_name, :on => :tags)
-  end
+    def related(count = 5)
+      #not sure about this yet
+    end
 
-  def self.by_category(category_name)
-    tagged_with(category_name, :on => :categories)
-  end
+    def by_date(date, period = nil)
+      if date.is_a?(Hash)
+        keys = [:day, :month, :year].select { |key| date.include?(key) }
+        period = keys.first.to_s
+        date = DateTime.new(*keys.reverse.map { |key| date[key].to_i })
+      end
 
-  def self.by_author(author)
-    where(:author_id => author)
-  end
+      time = date.to_time.in_time_zone
+      where(:published_at => (time.send("beginning_of_#{period}")..time.send("end_of_#{period}")))
+    end
 
-  # data for news archive widget, only visible entries
-  def self.organize_blog_entries
-    Hash.new.tap do |entries|
-      years.each do |year|
-        months_for(year).each do |month|
-          date = DateTime.new(year, month)
-          entries[year] ||= []
-          entries[year] << [date.strftime("%B"), self.visible.by_date(date, :month)]
+    def by_tag(tag_name)
+      tagged_with(tag_name, :on => :tags)
+    end
+
+    def by_category(category_name)
+      tagged_with(category_name, :on => :categories)
+    end
+
+    def by_author(author)
+      where(:author_id => author)
+    end
+
+    # data for news archive widget, only visible entries
+    def organize_blog_entries
+      Hash.new.tap do |entries|
+        years.each do |year|
+          months_for(year).each do |month|
+            date = DateTime.new(year, month)
+            entries[year] ||= []
+            entries[year] << [date.strftime("%B"), self.visible.by_date(date, :month)]
+          end
         end
       end
     end
@@ -76,6 +90,7 @@ class Spree::BlogEntry < ActiveRecord::Base
 
   protected
   def update_post_count_for_categories
+    p 'im here'
     self.blog_categories.each { |c| c.update_column("post_count", c.blog_entries.count) }
   end
 
