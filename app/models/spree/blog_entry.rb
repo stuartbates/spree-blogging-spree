@@ -6,12 +6,16 @@ class Spree::BlogEntry < ActiveRecord::Base
   acts_as_taggable_on :tags, :categories
   before_save :create_permalink
   before_save :set_published_at
+
+  after_save :update_post_count_for_categories
+  after_destroy :update_post_count_for_categories
+
   validates_presence_of :title
   validates_presence_of :body
 
   default_scope :order => "published_at DESC"
   scope :visible, where(:visible => true)
-  scope :recent, lambda{|max=5| visible.limit(max) }
+  scope :recent, lambda { |max=5| visible.limit(max) }
 
   if Spree.user_class
     belongs_to :author, :class_name => Spree.user_class.to_s
@@ -36,14 +40,14 @@ class Spree::BlogEntry < ActiveRecord::Base
 
   def self.by_date(date, period = nil)
     if date.is_a?(Hash)
-      keys = [:day, :month, :year].select {|key| date.include?(key) }
+      keys = [:day, :month, :year].select { |key| date.include?(key) }
       period = keys.first.to_s
-      date = DateTime.new(*keys.reverse.map {|key| date[key].to_i })
+      date = DateTime.new(*keys.reverse.map { |key| date[key].to_i })
     end
 
     time = date.to_time.in_time_zone
-    where(:published_at => (time.send("beginning_of_#{period}")..time.send("end_of_#{period}")) )
-  end 
+    where(:published_at => (time.send("beginning_of_#{period}")..time.send("end_of_#{period}")))
+  end
 
   def self.by_tag(tag_name)
     tagged_with(tag_name, :on => :tags)
@@ -70,14 +74,19 @@ class Spree::BlogEntry < ActiveRecord::Base
     end
   end
 
+  protected
+  def update_post_count_for_categories
+    self.blog_categories.each { |c| c.update_column("post_count", c.blog_entries.count) }
+  end
+
   private
 
   def self.years
-    visible.all.map {|e| e.published_at.year }.uniq
+    visible.all.map { |e| e.published_at.year }.uniq
   end
 
   def self.months_for(year)
-    visible.all.select {|e| e.published_at.year == year }.map {|e| e.published_at.month }.uniq
+    visible.all.select { |e| e.published_at.year == year }.map { |e| e.published_at.month }.uniq
   end
 
   def create_permalink
