@@ -8,10 +8,17 @@
     </div>
 
     <%= render :partial => 'spree/blog_entries/blog_entry_details', :locals => {:blog_entry => @blog_entry} %>
+    <% if !@blog_entry.blog_categories.empty? %>
+        <div class="post-categories">
+          <span>Posted in categories:&nbsp;</span>
+            <%= render :partial => 'spree/blog_entries/blog_categories_list', :collection => @blog_entry.blog_categories, :as => :category %>
+        </div>
+    <% end %>
   </div>
 
   <%= render :partial => 'spree/blog_entries/comments', :locals => {:blog_entry => @blog_entry}  %>
-</div> 
+</div>
+
 
 <% content_for :sidebar do %>
   <%= render :partial => 'spree/blog_entries/sidebar_show' %>

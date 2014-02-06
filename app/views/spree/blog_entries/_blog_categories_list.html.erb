@@ -1,0 +1,4 @@
+<span class="post-category-link">
+  <%# TODO This needs to be wired up correctly in terms of te category link - currently works but uses the 'tag' categories %>
+  <%= link_to category.title, blog_category_path(category.title) %> (<%= category.post_count %>)
+</span>&nbsp;&nbsp;

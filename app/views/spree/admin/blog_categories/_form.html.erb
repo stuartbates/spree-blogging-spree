@@ -1,0 +1,9 @@
+<div data-hook="admin_blog_category_form" class="align-center row">
+  <div class="alpha eight columns">
+    <%= f.field_container :name do %>
+      <%= f.label :title, Spree.t(:title) %> <span class="required">*</span><br />
+      <%= f.text_field :title, :class => 'fullwidth' %>
+      <%= f.error_message_on :title %>
+    <% end %>
+  </div>
+</div>

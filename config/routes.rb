@@ -1,9 +1,10 @@
 Spree::Core::Engine.routes.draw do
   namespace :admin do
-    resources :blog_entries
+
+    resources :blog_categories do
+      resources :blog_entries
+    end
   end
-  
-  resources :blog_entries
 
   match '/blog/tag/:tag', :to => 'blog_entries#tag', :as => :blog_tag
   match '/blog/category/:category', :to => 'blog_entries#category', :as => :blog_category

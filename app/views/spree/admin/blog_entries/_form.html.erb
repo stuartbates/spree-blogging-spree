@@ -14,10 +14,19 @@
       <%= form.error_message_on :permalink %>
     <% end %>
 
-    <%= form.field_container :category_list do %>
-      <%= form.label :category_list, Spree.t(:category_list)  %><br />
-      <%= form.text_field :category_list, :class => 'fullwidth' %>
+    <%= form.label :blog_categories, Spree.t(:blog_categories) %>
+    <% Spree::BlogCategory.all.each do |category| %>
+        <div>
+          <%= check_box_tag "blog_entry[blog_category_ids][]", category.id, @blog_entry.blog_categories.include?(category) %>
+          <%= category.title %>
+        </div>
     <% end %>
+    <%= hidden_field_tag 'blog_entry[blog_category_ids][]', '' %>
+
+    <%# form.field_container :category_list do %>
+      <%# form.label :category_list, Spree.t(:category_list)  %><br />
+      <%# form.text_field :category_list, :class => 'fullwidth' %>
+    <%# end %>
 
     <%= form.field_container :tag_list do %>
       <%= form.label :tag_list, Spree.t(:tag_list) %><br />
@@ -59,7 +68,7 @@
 
     <%= form.field_container :author_id do %>
       <%= form.label :author_id, Spree.t(:author_id) %><br />
-      <%= form.select :author_id, Spree.user_class.joins(:spree_roles).where("#{Spree::Role.table_name}.name" => "blogger").collect {|u| [u.email, u.id]}, {:include_blank => true}, :class => 'select2' %>
+      <%= form.select :author_id, Spree.user_class.joins(:spree_roles).where("#{Spree::Role.table_name}.name" => "blogger").collect {|u| ["#{u.first_name} #{u.last_name}", u.id]}, {:include_blank => true}, :class => 'select2' %>
     <% end %>
 
     <%= field_set_tag Spree.t(:blog_entry_featured_image) do %>
