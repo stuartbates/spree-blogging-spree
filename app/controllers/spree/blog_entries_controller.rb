@@ -2,6 +2,8 @@ class Spree::BlogEntriesController < Spree::StoreController
   helper 'spree/blog_entries' 
 
   before_filter :init_pagination, :only => [:index, :tag, :archive, :author, :category]
+  before_filter :update_view_count, :only => :show
+
   rescue_from ActiveRecord::RecordNotFound, :with => :render_404
   
   def index
@@ -15,6 +17,7 @@ class Spree::BlogEntriesController < Spree::StoreController
       @blog_entry = Spree::BlogEntry.visible.find_by_permalink!(params[:slug])
     end
     @title = @blog_entry.title
+
   end
 
   def tag
@@ -40,6 +43,12 @@ class Spree::BlogEntriesController < Spree::StoreController
     @author = Spree.user_class.where(:nickname => params[:author]).first
     @blog_entries = Spree::BlogEntry.visible.by_author(@author).page(@pagination_page).per(@pagination_per_page)
   end
+
+  protected
+    def update_view_count
+      @post = Spree::BlogEntry.visible.find_by_permalink!(params[:slug])
+      Spree::BlogEntry.increment_counter(:view_count, @post.id)
+    end
 
   private
 
