@@ -4,7 +4,7 @@
         <li>
           <%= link_to(blog_entry_permalink(blog_entry)) do %>
               <%= blog_entry.title %>
-              <span class="blog_entry_views"><%= "(#{blog_entry.view_count} views)" %></span><br>
+              <span class="blog_entry_views">(<%= "#{blog_entry.view_count}" %> views)</span><br>
               <span class="blog_entry_date"><em><%= "#{time_ago_in_words blog_entry.published_at} ago" %></em></span>
           <% end %>
         </li>

@@ -1,5 +1,5 @@
 <div id="blog_entry_sidebar">
-
+  
   <h3>Blog Categories</h3>
   <%= render :partial => 'spree/blog_entries/categories_list' %>
   <hr />
@@ -13,7 +13,7 @@
   <hr />
 
   <h3>Popular Blog Entries</h3>
-  <%= render :partial => 'spree/blog_entries/popular_blog_entries', :object => Spree::BlogEntry.popular() %>
+  <%= render :partial => 'spree/blog_entries/popular_blog_entries', :object => Spree::BlogEntry.most_popular() %>
   <hr />
 
   <h3>Blog Archive</h3>

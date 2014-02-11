@@ -1,0 +1,12 @@
+<div class="related-posts">
+  <ul class="related_blog_entries">
+    <% recent_blog_entries.each do |blog_entry| %>
+        <li>
+          <%= link_to(blog_entry_permalink(blog_entry)) do %>
+              <%= blog_entry.title %>
+              <span class="blog_entry_date"><%= "#{time_ago_in_words blog_entry.published_at} ago" %></span>
+          <% end %>
+        </li>
+    <% end %>
+  </ul>
+</div>

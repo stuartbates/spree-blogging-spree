@@ -8,14 +8,16 @@ class Spree::BlogEntry < ActiveRecord::Base
   before_save :set_published_at
 
   after_save :update_post_count_for_categories
-  after_destroy :update_post_count_for_categories
+  before_destroy :update_post_count_for_categories
 
   validates_presence_of :title
   validates_presence_of :body
 
-  default_scope :order => "published_at DESC"
+  #default_scope :order => "published_at DESC"
   scope :visible, where(:visible => true)
+  scope :popular, order("view_count DESC")
   scope :recent, lambda { |max=5| visible.limit(max) }
+  scope :most_popular, lambda { |max=5| visible.limit(max).popular }
 
   if Spree.user_class
     belongs_to :author, :class_name => Spree.user_class.to_s
@@ -39,17 +41,6 @@ class Spree::BlogEntry < ActiveRecord::Base
   end
 
   class << self
-    def recent(count = 5)
-      order("published_at DESC").limit(count)
-    end
-
-    def popular(count = 5)
-      order("view_count ASC").limit(count)
-    end
-
-    def related(count = 5)
-      #not sure about this yet
-    end
 
     def by_date(date, period = nil)
       if date.is_a?(Hash)
@@ -90,7 +81,6 @@ class Spree::BlogEntry < ActiveRecord::Base
 
   protected
   def update_post_count_for_categories
-    p 'im here'
     self.blog_categories.each { |c| c.update_column("post_count", c.blog_entries.count) }
   end
 
