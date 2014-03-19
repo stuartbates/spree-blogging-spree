@@ -9,11 +9,11 @@
   <hr />
   
   <h3>Recent Blog Entries</h3>
-  <%= render :partial => 'spree/blog_entries/recent_blog_entries', :object => Spree::BlogEntry.recent() %>
+  <%= render :partial => 'spree/blog_entries/recent_blog_entries', :object => Spree::BlogEntry.recent %>
   <hr />
 
   <h3>Popular Blog Entries</h3>
-  <%= render :partial => 'spree/blog_entries/popular_blog_entries', :object => Spree::BlogEntry.most_popular() %>
+  <%= render :partial => 'spree/blog_entries/popular_blog_entries', :object => Spree::BlogEntry.unscoped.most_popular %>
   <hr />
 
   <h3>Blog Archive</h3>

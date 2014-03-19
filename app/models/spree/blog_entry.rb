@@ -4,21 +4,25 @@ class Spree::BlogEntry < ActiveRecord::Base
 
   attr_accessible :title, :body, :tag_list, :visible, :published_at, :summary, :permalink, :author_id, :view_count, :category_list, :blog_entry_image, :blog_entry_image_attributes, :blog_category_ids
   acts_as_taggable_on :tags, :categories
+
+  # Events
   before_save :create_permalink
   before_save :set_published_at
-
   after_save :update_post_count_for_categories
   before_destroy :update_post_count_for_categories
 
+  # Validation
   validates_presence_of :title
   validates_presence_of :body
 
-  #default_scope :order => "published_at DESC"
+  # Scopes
+  default_scope :order => 'published_at DESC'
   scope :visible, where(:visible => true)
-  scope :popular, order("view_count DESC")
+  scope :popular, order('view_count DESC')
   scope :recent, lambda { |max=5| visible.limit(max) }
   scope :most_popular, lambda { |max=5| visible.limit(max).popular }
 
+  # Relations
   if Spree.user_class
     belongs_to :author, :class_name => Spree.user_class.to_s
   else
@@ -26,7 +30,7 @@ class Spree::BlogEntry < ActiveRecord::Base
   end
 
   has_one :blog_entry_image, :as => :viewable, :dependent => :destroy, :class_name => 'Spree::BlogEntryImage'
-  has_many :category_entries, dependent: :delete_all, :class_name => "Spree::CategoryEntry"
+  has_many :category_entries, dependent: :delete_all, :class_name => 'Spree::CategoryEntry'
   has_many :blog_categories, :through => :category_entries
 
   accepts_nested_attributes_for :blog_entry_image, :reject_if => :all_blank
@@ -57,10 +61,6 @@ class Spree::BlogEntry < ActiveRecord::Base
       tagged_with(tag_name, :on => :tags)
     end
 
-    def by_category(category_name)
-      tagged_with(category_name, :on => :categories)
-    end
-
     def by_author(author)
       where(:author_id => author)
     end
@@ -79,12 +79,13 @@ class Spree::BlogEntry < ActiveRecord::Base
     end
   end
 
-  protected
+protected
+
   def update_post_count_for_categories
     self.blog_categories.each { |c| c.update_column("post_count", c.blog_entries.count) }
   end
 
-  private
+private
 
   def self.years
     visible.all.map { |e| e.published_at.year }.uniq
